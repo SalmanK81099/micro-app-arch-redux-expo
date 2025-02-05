@@ -1,11 +1,17 @@
-import { Stack } from "expo-router/stack";
+import { Stack } from 'expo-router';
+import { CombinedStoreProvider } from '@micro/features-support/src/providers/CombinedStoreProvider';
 
-export default function Layout() {
+export default function SupportAppLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" options={{}} />
-      <Stack.Screen name="(support)/call-us" />
-      <Stack.Screen name="(support)/chat-with-us" />
-    </Stack>
+    <CombinedStoreProvider>
+      <Stack>
+        <Stack.Screen
+          name='(support)'
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack>
+    </CombinedStoreProvider>
   );
 }

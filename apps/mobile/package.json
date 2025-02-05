@@ -36,6 +36,7 @@
     "react-native-web": "~0.19.10",
     "@micro/core-components": "*",
     "@micro/core-navigation": "*",
+    "@micro/core-store": "*",
     "@micro/features-payments": "*",
     "@micro/features-support": "*"
   },

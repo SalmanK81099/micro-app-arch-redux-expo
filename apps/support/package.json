@@ -38,6 +38,7 @@
     "react-native-screens": "3.31.1",
     "react-native-web": "~0.19.10",
     "@micro/core-components": "*",
+    "@micro/core-store": "*",
     "@micro/features-support": "*"
   },
   "devDependencies": {

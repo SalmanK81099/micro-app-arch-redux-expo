@@ -1,52 +1,255 @@
-# Micro app architecture with expo
+# Micro App Architecture Demo
 
-![alt text](docs/assets/conference.png "Conference photo")
-This repo contains the code showcased at Appjs conference during the talk "Micro app architecture with expo".
+This project demonstrates a micro-frontend architecture using React Native with Redux Toolkit for state management.
 
-[See talk here](https://youtu.be/j6nNdPciqn0)
+## Store Architecture
 
-## Installation
+The project uses a hierarchical Redux store setup with the following structure:
 
-Start by installing all dependencies:
-`yarn` from root. To run the main app navigate to apps/mobile and run `yarn start`. To run any of the micro apps run `yarn start` from either apps/payments or apps/support.
+### Core Store (`@micro/core-store`)
 
-## Background
+The core store serves as the main state management solution for the application. It provides:
 
-### Setup
+- Global user state management
+- Theme and UI preferences
+- Core API integration
+- Shared utilities for micro apps
 
-The project is setup as a monorepo using yarn. To create the app and micro apps, expo is used. See how to setup a monorepo with expo here: https://docs.expo.dev/guides/monorepos/
-
-To get expo start to work with a mono repo the start script in each micro app has been modified:
-
-`"start": "EXPO_USE_METRO_WORKSPACE_ROOT=1 expo start -c"`
-
-The -c argument resets the cache when starting metro. This is not neccesary and not recommended in a normal development workflow, however since this is a demo app, this makes sures that metro is always correct when switching between micro apps.
-
-### Creating new micro apps
-
-To create a new micro app, navigate to the app folder and run `npx create-expo-app@latest`. This will scaffold a new expo app. Expo generates a lot of files not needed for most apps, so if you don't want the additional expo demo components, change to the new directory and run `yarn reset-project`.
-
-## Navigation
-
-### React navigation
-
-Creating navigation in micro apps is easy with react navigation. Each package defines any navigator needed. When running the whole app, each micro app just exports their navigators to the main app. Since all navigators are react components its easy to do.
-
-### Expo Router
-
-Expo router is a bit more complicated in micro app architecture, since expo router is based on file structures and not react components. Each micro app can setup its own expo route. This works as expected, however when you want to run the main app this becomes tricker as it doesn't have access to the micro apps file structures.
-
-You can make this work by changing the main entry of the main app. In this app we have enabled this using our package `"@micro/core-navigation"`.
-
-In the main app's package.json make sure to change `"main": "expo-router/entry"` to `"main": "index.js"`. This has already been done in the project. In the index.js file we now need to show our main app where the other file structures to our navigators are located.
-
-If you have created a new micro app above, go and add it to the main apps index.js
-
-```
-  {
-    context: require.context("../new-app/app/(new-app)", true, /.*/),
-    prefix: "(new-app)",
+```typescript
+// Core store structure
+{
+  user: {
+    user: User | null;
+    loading: boolean;
+    error: string | null;
   },
+  mobile: {
+    theme: 'light' | 'dark';
+    isOnline: boolean;
+  }
+}
 ```
 
-In the new micro app, create a file in `new-app/app/(new-app)`. Everything you want to export to the main app should be located in the folder with parenthisis. Any other navigation that should be part of the micro app but not the main app can be put directly in the app folder.
+### Micro App Stores
+
+Each micro app has its own Redux store that can work both independently and as part of the main app.
+
+#### Support App Store (`@micro/features-support`)
+
+```typescript
+// Support store structure
+{
+  tickets: {
+    items: Ticket[];
+    loading: boolean;
+    error: string | null;
+  }
+}
+```
+
+#### Payments App Store (`@micro/features-payments`)
+
+```typescript
+// Payments store structure
+{
+  transactions: {
+    transactions: Transaction[];
+    loading: boolean;
+    error: string | null;
+  },
+  paymentMethods: {
+    methods: PaymentMethod[];
+    loading: boolean;
+    error: string | null;
+  },
+  settings: {
+    settings: PaymentSettings;
+    loading: boolean;
+    error: string | null;
+  }
+}
+```
+
+## Store Integration
+
+### 1. Provider Setup
+
+The stores are integrated using a hierarchical provider setup:
+
+```tsx
+// Main App
+<StoreProvider>
+  <App />
+</StoreProvider>
+
+// Support App
+<CombinedStoreProvider> // Combines core and support stores
+  <SupportApp />
+</CombinedStoreProvider>
+
+// Payments App
+<CombinedStoreProvider> // Combines core and payments stores
+  <PaymentsApp />
+</CombinedStoreProvider>
+```
+
+### 2. State Access
+
+#### Accessing Core Store State
+
+```typescript
+// Using hooks from @micro/core-store
+const { user } = useMainAppUser();
+const theme = useAppSelector((state) => state.mobile.theme);
+```
+
+#### Accessing Micro App State
+
+```typescript
+// Using hooks from feature packages
+const tickets = useAppSelector((state) => state.tickets.items);
+const transactions = useAppSelector((state) => state.transactions.transactions);
+```
+
+### 3. RTK Query Integration
+
+Each store includes RTK Query APIs for data fetching:
+
+```typescript
+// Core API
+const { data: currentUser } = useGetCurrentUserQuery();
+
+// Support API
+const { data: tickets } = useGetTicketsQuery();
+const [createTicket] = useCreateTicketMutation();
+
+// Payments API
+const { data: transactions } = useGetTransactionsQuery();
+const [addTransaction] = useAddTransactionMutation();
+```
+
+## State Management Features
+
+### 1. Automatic State Sync
+
+- RTK Query automatically updates the store on API calls
+- Changes are reflected across all components using the data
+- Optimistic updates for better UX
+
+### 2. Error Handling
+
+- Centralized error handling in slices
+- Error states propagated to components
+- Automatic error clearing on successful operations
+
+### 3. Loading States
+
+- Automatic loading states from RTK Query
+- Manual loading state management in slices
+- Loading indicators in components
+
+### 4. Debug Logging
+
+All state changes are logged with descriptive emojis:
+
+- 👤 User-related actions
+- 🎫 Ticket-related actions
+- 💳 Payment-related actions
+- ⏳ Loading states
+- ❌ Errors
+
+## Usage Examples
+
+### 1. Core Store Usage
+
+```typescript
+import { useMainAppUser, useAppSelector } from '@micro/core-store';
+
+const MyComponent = () => {
+  const { user } = useMainAppUser();
+  const theme = useAppSelector((state) => state.mobile.theme);
+
+  return <View>{/* Component JSX */}</View>;
+};
+```
+
+### 2. Support Store Usage
+
+```typescript
+import {
+  useAppSelector,
+  useCreateTicketMutation,
+} from '@micro/features-support';
+
+const SupportComponent = () => {
+  const tickets = useAppSelector((state) => state.tickets.items);
+  const [createTicket] = useCreateTicketMutation();
+
+  return <View>{/* Component JSX */}</View>;
+};
+```
+
+### 3. Payments Store Usage
+
+```typescript
+import {
+  useAppSelector,
+  useAddTransactionMutation,
+} from '@micro/features-payments';
+
+const PaymentsComponent = () => {
+  const transactions = useAppSelector(
+    (state) => state.transactions.transactions
+  );
+  const [addTransaction] = useAddTransactionMutation();
+
+  return <View>{/* Component JSX */}</View>;
+};
+```
+
+## Best Practices
+
+1. **State Access**
+
+   - Use typed selectors for type safety
+   - Access only needed state portions
+   - Use memoized selectors for performance
+
+2. **State Updates**
+
+   - Use RTK Query for API operations
+   - Dispatch actions through proper slices
+   - Handle optimistic updates when needed
+
+3. **Error Handling**
+
+   - Always handle error states
+   - Show user-friendly error messages
+   - Clear errors when appropriate
+
+4. **Loading States**
+   - Show loading indicators during operations
+   - Handle loading states gracefully
+   - Prevent duplicate operations
+
+## Development Guidelines
+
+1. **Adding New State**
+
+   - Create a new slice in appropriate package
+   - Add proper TypeScript types
+   - Include error and loading states
+   - Add debug logging
+
+2. **API Integration**
+
+   - Use RTK Query for API calls
+   - Define proper tag types for caching
+   - Handle success and error cases
+   - Update local state appropriately
+
+3. **Testing**
+   - Test selectors and reducers
+   - Mock API calls in tests
+   - Test error and loading states
+   - Verify state updates
