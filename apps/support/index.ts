@@ -1,1 +1,1 @@
-export { SupportScreen } from "./screens";
+export { SupportScreen } from "@micro/features-support";
