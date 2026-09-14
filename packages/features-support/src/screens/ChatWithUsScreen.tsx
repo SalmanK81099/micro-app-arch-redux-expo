@@ -29,7 +29,7 @@ export const ChatWithUsScreen = () => {
     navigation.setOptions({
       headerShown: true,
       headerTitle: 'Chat with Us',
-      headerBackTitleVisible: false,
+      headerBackButtonDisplayMode: 'minimal',
     });
 
     dispatch(

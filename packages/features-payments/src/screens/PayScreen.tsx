@@ -11,7 +11,7 @@ export const PayScreen = () => {
     navigation.setOptions({
       headerShown: true,
       headerTitle: "Send money",
-      headerBackTitleVisible: false,
+      headerBackButtonDisplayMode: "minimal",
     });
   }, [navigation]);
 

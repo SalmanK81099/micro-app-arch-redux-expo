@@ -2,6 +2,52 @@
 
 This project demonstrates a micro-frontend architecture using React Native with Redux Toolkit for state management.
 
+It runs on **Expo SDK 57** (React 19.2, React Native 0.86, Expo Router 57) with the
+New Architecture and React Compiler enabled.
+
+## Getting started
+
+```bash
+yarn install
+
+# Run an app (each app is its own Expo project)
+yarn workspace mobile start
+yarn workspace @micro/app-payments start
+yarn workspace @micro/app-support start
+```
+
+## Testing
+
+Tests run with `jest-expo` and React Native Testing Library across every workspace:
+
+```bash
+yarn test            # all workspaces
+yarn test:watch      # watch mode
+yarn typecheck       # root TypeScript project
+```
+
+Per-workspace checks:
+
+```bash
+yarn workspace @micro/core-store test
+cd apps/mobile && npx tsc --noEmit && npx expo-doctor
+```
+
+> React Native Testing Library v14 renders asynchronously — `render(...)` and
+> `fireEvent.*` both return promises and must be awaited.
+
+## Upgrading the Expo SDK
+
+Upgrades follow the official [`expo-upgrade` skill](https://github.com/expo/skills),
+vendored at `.claude/skills/expo-upgrade`:
+
+```bash
+npx expo install expo@latest
+npx expo install --fix
+npx expo-doctor
+npx expo export -p ios --clear
+```
+
 ## Store Architecture
 
 The project uses a hierarchical Redux store setup with the following structure:

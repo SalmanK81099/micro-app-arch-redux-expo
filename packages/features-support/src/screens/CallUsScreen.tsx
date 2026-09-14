@@ -11,7 +11,7 @@ export const CallUsScreen = () => {
     navigation.setOptions({
       headerShown: true,
       headerTitle: "Call Us",
-      headerBackTitleVisible: false,
+      headerBackButtonDisplayMode: "minimal",
     });
   }, [navigation]);
 
