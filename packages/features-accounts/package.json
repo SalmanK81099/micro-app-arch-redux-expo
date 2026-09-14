@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "main": "./src/index.ts",
   "license": "MIT",
-  "jest": {
-    "preset": "jest-expo"
-  },
   "dependencies": {
     "expo": "~57.0.22",
     "react": "19.2.3",
@@ -24,6 +21,6 @@
     "typescript": "~5.9.2"
   },
   "scripts": {
-    "test": "jest --passWithNoTests"
+    "test": "cd ../.. && jest --selectProjects features-accounts --passWithNoTests"
   }
 }

@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "main": "./src/index.ts",
   "license": "MIT",
-  "jest": {
-    "preset": "jest-expo"
-  },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
     "expo": "~57.0.22",
@@ -27,6 +24,6 @@
     "typescript": "~5.9.2"
   },
   "scripts": {
-    "test": "jest --passWithNoTests"
+    "test": "cd ../.. && jest --selectProjects core-components --passWithNoTests"
   }
 }

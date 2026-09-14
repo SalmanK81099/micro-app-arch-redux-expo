@@ -25,10 +25,7 @@
     "react": "*",
     "react-native": "*"
   },
-  "jest": {
-    "preset": "jest-expo"
-  },
   "scripts": {
-    "test": "jest --passWithNoTests"
+    "test": "cd ../.. && jest --selectProjects core-store --passWithNoTests"
   }
 }
