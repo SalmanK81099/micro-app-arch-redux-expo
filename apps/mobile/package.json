@@ -8,11 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "jest --passWithNoTests",
+    "test": "cd ../.. && jest --selectProjects mobile --passWithNoTests",
     "lint": "expo lint"
-  },
-  "jest": {
-    "preset": "jest-expo"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.15",
